@@ -1,4 +1,4 @@
-package spring.security.async.authentication.auth.config;
+package spring.security.async.authentication.auth.config.userdetails;
 
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;

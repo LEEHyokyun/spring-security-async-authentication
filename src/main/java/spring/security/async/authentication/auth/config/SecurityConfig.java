@@ -20,6 +20,7 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import spring.security.async.authentication.auth.config.handler.denied.FormAccessDeniedHandler;
+import spring.security.async.authentication.auth.config.provider.FetchAuthenticationProvider;
 import spring.security.async.authentication.auth.filters.FetchAuthenticationFilter;
 
 @Slf4j
@@ -30,6 +31,7 @@ public class SecurityConfig {
 
     private final UserDetailsService userDetailsService;
     private final AuthenticationProvider authenticationProvider;
+    private final FetchAuthenticationProvider fetchAuthenticationProvider;
     private final AuthenticationDetailsSource<HttpServletRequest, WebAuthenticationDetails> authenticationDetailsSource;
     private final AuthenticationSuccessHandler authenticationSuccessHandler;
     private final AuthenticationFailureHandler authenticationFailureHandler;
@@ -64,6 +66,7 @@ public class SecurityConfig {
     public SecurityFilterChain fetchSecurityFilterChain(HttpSecurity http) throws Exception {
 
         AuthenticationManagerBuilder authenticationManagerBuilder = http.getSharedObject(AuthenticationManagerBuilder.class);
+        authenticationManagerBuilder.authenticationProvider(fetchAuthenticationProvider);
         AuthenticationManager authenticationManager = authenticationManagerBuilder.build();
 
         http

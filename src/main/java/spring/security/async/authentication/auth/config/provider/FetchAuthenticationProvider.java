@@ -1,4 +1,4 @@
-package spring.security.async.authentication.auth.config;
+package spring.security.async.authentication.auth.config.provider;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -11,11 +11,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import spring.security.async.authentication.auth.config.details.FormAuthenticationDetails;
 import spring.security.async.authentication.auth.config.exception.SecretException;
+import spring.security.async.authentication.auth.token.FetchAuthenticationToken;
 import spring.security.async.authentication.auth.users.domain.context.AccountContext;
 
-@Component("authenticationProvider")
+@Component("fetchAuthenticationProvider")
 @RequiredArgsConstructor
-public class CustomizedAuthenticationProvider implements AuthenticationProvider {
+public class FetchAuthenticationProvider implements AuthenticationProvider {
 
     private final UserDetailsService userDetailsService;
     private final PasswordEncoder passwordEncoder;
@@ -37,12 +38,12 @@ public class CustomizedAuthenticationProvider implements AuthenticationProvider 
             throw new SecretException("Invalid secret key");
         }
 
-        return new  UsernamePasswordAuthenticationToken(accountContext, null, accountContext.getAuthorities());
+        return new FetchAuthenticationToken(accountContext.getAuthorities(), accountContext.getUsername(), accountContext.getPassword());
     }
 
     //pro
     @Override
     public boolean supports(Class<?> authentication) {
-        return authentication.isAssignableFrom(UsernamePasswordAuthenticationToken.class);
+        return authentication.isAssignableFrom(FetchAuthenticationToken.class);
     }
 }
