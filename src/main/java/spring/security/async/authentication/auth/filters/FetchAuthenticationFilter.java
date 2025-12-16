@@ -34,7 +34,12 @@ public class FetchAuthenticationFilter extends AbstractAuthenticationProcessingF
         setSecurityContextRepository(getSecurityContextRepository(httpSecurity));
     }
 
-    private SecurityContextRepository getSecurityContextRepository(HttpSecurity http) {
+    //인증필터 동작 패턴 정의(url/method)
+    public FetchAuthenticationFilter() {
+        super(new AntPathRequestMatcher("/fetch/login", "POST"));
+    }
+
+    public SecurityContextRepository getSecurityContextRepository(HttpSecurity http) {
         SecurityContextRepository securityContextRepository = http.getSharedObject(SecurityContextRepository.class);
         if (securityContextRepository == null) {
             securityContextRepository = new DelegatingSecurityContextRepository(
@@ -45,11 +50,6 @@ public class FetchAuthenticationFilter extends AbstractAuthenticationProcessingF
 
         //session
         return securityContextRepository;
-    }
-
-    //인증필터 동작 패턴 정의(url/method)
-    public FetchAuthenticationFilter() {
-        super(new AntPathRequestMatcher("/fetch/login", "POST"));
     }
 
     @Override

@@ -27,6 +27,7 @@ import spring.security.async.authentication.auth.config.handler.failure.FormAuth
 import spring.security.async.authentication.auth.config.handler.success.FetchAuthenticationSuccessHandler;
 import spring.security.async.authentication.auth.config.handler.success.FormAuthenticationSuccessHandler;
 import spring.security.async.authentication.auth.config.provider.FetchAuthenticationProvider;
+import spring.security.async.authentication.auth.dsl.FetchApiDsl;
 import spring.security.async.authentication.auth.filters.FetchAuthenticationFilter;
 
 @Slf4j
@@ -85,12 +86,18 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
                 //.csrf(AbstractHttpConfigurer::disable)
-                .addFilterBefore(fetchAuthenticationFilter(http, authenticationManager), UsernamePasswordAuthenticationFilter.class)
+                //.addFilterBefore(fetchAuthenticationFilter(http, authenticationManager), UsernamePasswordAuthenticationFilter.class)
                 .authenticationManager(authenticationManager)
                 .exceptionHandling(exception -> exception
                         .authenticationEntryPoint(new FetchAuthenticationEntryPoint())
                         .accessDeniedHandler(new FetchAccessDeniedHandler())
                 )
+                .with(new FetchApiDsl<>(), dsl -> dsl
+                                .fetchSuccessHandler(fetchAuthenticationSuccessHandler)
+                                .fetchFailureHandler(fetchAuthenticationFailureHandler)
+                                .loginPage("/fetch/login") //get
+                                .loginProcessingUrl("/fetch/login") //post
+                        )
         ;
 
         //th:action="@{/login} method=post" --csrf
@@ -98,17 +105,17 @@ public class SecurityConfig {
         return http.build();
     }
 
-    private FetchAuthenticationFilter fetchAuthenticationFilter(HttpSecurity httpSecurity, AuthenticationManager authenticationManager) throws Exception {
-        //httpSecurity -> session/context(영속화)
-        FetchAuthenticationFilter fetchAuthenticationFilter = new FetchAuthenticationFilter(httpSecurity);
-        fetchAuthenticationFilter.setAuthenticationManager(authenticationManager);
-
-        //handler
-        fetchAuthenticationFilter.setAuthenticationSuccessHandler(fetchAuthenticationSuccessHandler);
-        fetchAuthenticationFilter.setAuthenticationFailureHandler(fetchAuthenticationFailureHandler);
-
-        return fetchAuthenticationFilter;
-    }
+//    private FetchAuthenticationFilter fetchAuthenticationFilter(HttpSecurity httpSecurity, AuthenticationManager authenticationManager) throws Exception {
+//        //httpSecurity -> session/context(영속화)
+//        FetchAuthenticationFilter fetchAuthenticationFilter = new FetchAuthenticationFilter(httpSecurity);
+//        fetchAuthenticationFilter.setAuthenticationManager(authenticationManager);
+//
+//        //handler
+//        fetchAuthenticationFilter.setAuthenticationSuccessHandler(fetchAuthenticationSuccessHandler);
+//        fetchAuthenticationFilter.setAuthenticationFailureHandler(fetchAuthenticationFailureHandler);
+//
+//        return fetchAuthenticationFilter;
+//    }
 
 //    @Bean
 //    public UserDetailsService userDetailsService(){
