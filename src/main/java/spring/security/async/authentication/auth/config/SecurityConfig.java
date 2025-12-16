@@ -20,6 +20,10 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import spring.security.async.authentication.auth.config.handler.denied.FormAccessDeniedHandler;
+import spring.security.async.authentication.auth.config.handler.failure.FetchAuthenticationFailureHandler;
+import spring.security.async.authentication.auth.config.handler.failure.FormAuthenticationFailureHandler;
+import spring.security.async.authentication.auth.config.handler.success.FetchAuthenticationSuccessHandler;
+import spring.security.async.authentication.auth.config.handler.success.FormAuthenticationSuccessHandler;
 import spring.security.async.authentication.auth.config.provider.FetchAuthenticationProvider;
 import spring.security.async.authentication.auth.filters.FetchAuthenticationFilter;
 
@@ -33,8 +37,10 @@ public class SecurityConfig {
     private final AuthenticationProvider authenticationProvider;
     private final FetchAuthenticationProvider fetchAuthenticationProvider;
     private final AuthenticationDetailsSource<HttpServletRequest, WebAuthenticationDetails> authenticationDetailsSource;
-    private final AuthenticationSuccessHandler authenticationSuccessHandler;
-    private final AuthenticationFailureHandler authenticationFailureHandler;
+    private final FormAuthenticationSuccessHandler formAuthenticationSuccessHandler;
+    private final FormAuthenticationFailureHandler formAuthenticationFailureHandler;
+    private final FetchAuthenticationSuccessHandler fetchAuthenticationSuccessHandler;
+    private final FetchAuthenticationFailureHandler fetchAuthenticationFailureHandler;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -46,8 +52,8 @@ public class SecurityConfig {
         )
                 .formLogin(form -> form.loginPage("/login")
                         .authenticationDetailsSource(authenticationDetailsSource)
-                        .successHandler(authenticationSuccessHandler)
-                        .failureHandler(authenticationFailureHandler)
+                        .successHandler(formAuthenticationSuccessHandler)
+                        .failureHandler(formAuthenticationFailureHandler)
                         .permitAll())
                 //.userDetailsService(userDetailsService)
                 .authenticationProvider(authenticationProvider)
@@ -88,6 +94,10 @@ public class SecurityConfig {
     private FetchAuthenticationFilter fetchAuthenticationFilter(AuthenticationManager authenticationManager) throws Exception {
         FetchAuthenticationFilter fetchAuthenticationFilter = new FetchAuthenticationFilter();
         fetchAuthenticationFilter.setAuthenticationManager(authenticationManager);
+
+        //handler
+        fetchAuthenticationFilter.setAuthenticationSuccessHandler(formAuthenticationSuccessHandler);
+        fetchAuthenticationFilter.setAuthenticationFailureHandler(formAuthenticationFailureHandler);
 
         return fetchAuthenticationFilter;
     }
