@@ -82,7 +82,7 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
                 .csrf(AbstractHttpConfigurer::disable)
-                .addFilterBefore(fetchAuthenticationFilter(authenticationManager), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(fetchAuthenticationFilter(http, authenticationManager), UsernamePasswordAuthenticationFilter.class)
                 .authenticationManager(authenticationManager)
         ;
 
@@ -91,8 +91,9 @@ public class SecurityConfig {
         return http.build();
     }
 
-    private FetchAuthenticationFilter fetchAuthenticationFilter(AuthenticationManager authenticationManager) throws Exception {
-        FetchAuthenticationFilter fetchAuthenticationFilter = new FetchAuthenticationFilter();
+    private FetchAuthenticationFilter fetchAuthenticationFilter(HttpSecurity httpSecurity, AuthenticationManager authenticationManager) throws Exception {
+        //httpSecurity -> session/context(영속화)
+        FetchAuthenticationFilter fetchAuthenticationFilter = new FetchAuthenticationFilter(httpSecurity);
         fetchAuthenticationFilter.setAuthenticationManager(authenticationManager);
 
         //handler

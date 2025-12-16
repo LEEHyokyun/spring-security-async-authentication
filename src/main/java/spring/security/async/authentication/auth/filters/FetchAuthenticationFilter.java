@@ -7,9 +7,15 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationServiceException;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
+import org.springframework.security.web.context.DelegatingSecurityContextRepository;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
+import org.springframework.security.web.context.RequestAttributeSecurityContextRepository;
+import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.util.StringUtils;
 import org.springframework.web.context.request.async.WebAsyncUtils;
@@ -22,6 +28,24 @@ import java.io.IOException;
 public class FetchAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
 
     private final ObjectMapper  objectMapper = new ObjectMapper();
+
+    public FetchAuthenticationFilter(HttpSecurity httpSecurity) throws Exception {
+        super(new AntPathRequestMatcher("/fetch/login", "POST"));
+        setSecurityContextRepository(getSecurityContextRepository(httpSecurity));
+    }
+
+    private SecurityContextRepository getSecurityContextRepository(HttpSecurity http) {
+        SecurityContextRepository securityContextRepository = http.getSharedObject(SecurityContextRepository.class);
+        if (securityContextRepository == null) {
+            securityContextRepository = new DelegatingSecurityContextRepository(
+                    new RequestAttributeSecurityContextRepository(),
+                    new HttpSessionSecurityContextRepository()
+            );
+        }
+
+        //session
+        return securityContextRepository;
+    }
 
     //인증필터 동작 패턴 정의(url/method)
     public FetchAuthenticationFilter() {
