@@ -20,6 +20,8 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import spring.security.async.authentication.auth.config.handler.denied.FormAccessDeniedHandler;
+import spring.security.async.authentication.auth.config.handler.exception.FetchAccessDeniedHandler;
+import spring.security.async.authentication.auth.config.handler.exception.FetchAuthenticationEntryPoint;
 import spring.security.async.authentication.auth.config.handler.failure.FetchAuthenticationFailureHandler;
 import spring.security.async.authentication.auth.config.handler.failure.FormAuthenticationFailureHandler;
 import spring.security.async.authentication.auth.config.handler.success.FetchAuthenticationSuccessHandler;
@@ -79,11 +81,16 @@ public class SecurityConfig {
                 .securityMatcher("/fetch/**")
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/css/**", "/images/**", "/js/**", "/webjars/**", "/favicon/**", "/*/icon/-*").permitAll()
+                        .requestMatchers("/fetch/login").permitAll()
                         .anyRequest().authenticated()
                 )
                 .csrf(AbstractHttpConfigurer::disable)
                 .addFilterBefore(fetchAuthenticationFilter(http, authenticationManager), UsernamePasswordAuthenticationFilter.class)
                 .authenticationManager(authenticationManager)
+                .exceptionHandling(exception -> exception
+                        .authenticationEntryPoint(new FetchAuthenticationEntryPoint())
+                        .accessDeniedHandler(new FetchAccessDeniedHandler())
+                )
         ;
 
         //th:action="@{/login} method=post" --csrf
@@ -97,8 +104,8 @@ public class SecurityConfig {
         fetchAuthenticationFilter.setAuthenticationManager(authenticationManager);
 
         //handler
-        fetchAuthenticationFilter.setAuthenticationSuccessHandler(formAuthenticationSuccessHandler);
-        fetchAuthenticationFilter.setAuthenticationFailureHandler(formAuthenticationFailureHandler);
+        fetchAuthenticationFilter.setAuthenticationSuccessHandler(fetchAuthenticationSuccessHandler);
+        fetchAuthenticationFilter.setAuthenticationFailureHandler(fetchAuthenticationFailureHandler);
 
         return fetchAuthenticationFilter;
     }

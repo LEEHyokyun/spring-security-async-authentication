@@ -5,3 +5,8 @@
 - javascript의 비동기 fetch 방식의 api 통신에 대한 인증
 - 다중 security filter chain 구성
 - 전용 fetch authentication provider 구성 필요
+
+## 2. additional
+
+- 401 - 인증예외 - authenticationEntryPoint
+- 403 - 인가예외 - accessDeniedHandler
